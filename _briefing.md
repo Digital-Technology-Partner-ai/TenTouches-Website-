@@ -124,7 +124,7 @@ Environment/runtime signals:
 
 ## Repository hygiene
 
-Current Git state before writing this briefing was clean.
+Current Git state before writing this briefing was clean. After `npm run build`, tracked `dist/` files changed because build output is committed in this repo. I restored the tracked `dist/` changes, but untracked generated files remain under `website_ten_touches/tentouches-website/dist/_next/static/`. I did not delete them because cleanup would require a destructive `git clean`/file-removal action.
 
 Important hygiene findings:
 
