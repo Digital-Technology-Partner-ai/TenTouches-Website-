@@ -20,7 +20,7 @@ DTP has it because Ten Touches is a DTP-owned product candidate. The code was mi
 
 - **DTP software category:** product candidate
 - **Development state:** MVP
-- **Commercial status:** live/product-supporting, but needs repo hygiene before treating it as a clean maintained DTP codebase.
+- **Commercial status:** live/product-supporting. Basic repository hygiene is now clean enough for DTP maintenance; dependency/security review is still needed before treating it as production-hardened.
 - **Last verified:** 2026-05-26 22:57 UK
 - **Works locally:** yes for install, lint and production build. Live production endpoints were not smoke-tested.
   - `npm ci` succeeded in the app directory.
@@ -31,7 +31,7 @@ DTP has it because Ten Touches is a DTP-owned product candidate. The code was mi
   - `test-signup.sh` contains and sends an admin password header to the live endpoint. Treat this as sensitive until reviewed.
   - `npm audit` reported 9 vulnerabilities, 5 moderate and 4 high, after `npm ci`.
   - Live-site HTTP verification was not completed in this run because the network check was blocked by the execution environment.
-  - GitHub transfer to the DTP organisation was reported by Steve, but Hudson could not verify the remote via `gh` because the network command was blocked by the execution environment.
+  - GitHub transfer to the DTP organisation has been verified by `git ls-remote`. Local `origin` now points to `https://github.com/Digital-Technology-Partner-ai/TenTouches-Website-.git`.
 
 ## How to run
 
@@ -122,19 +122,19 @@ Environment/runtime signals:
 
 ## Repository hygiene
 
-Current Git state before writing this briefing was clean. After `npm run build`, tracked `dist/` files changed because build output is committed in this repo. I restored the tracked `dist/` changes, but untracked generated files remain under `website_ten_touches/tentouches-website/dist/_next/static/`. I did not delete them because cleanup would require a destructive `git clean`/file-removal action.
+Current Git state after hygiene cleanup is clean and pushed.
 
-Important hygiene findings:
+Important hygiene findings and actions:
 
 - The repo has a root `.git` directory at `/Users/hudsonrebel/DTP Coding Projects/ten-touches-website/.git`.
 - Current branch is `main`.
-- Remote is `origin https://github.com/Virgelsnake/TenTouches-Website-.git`.
-- The repo tracks `.DS_Store` files and generated `dist/` output. This caused the lint run to inspect generated JS and produce thousands of warnings/errors.
-- App-level `.gitignore` correctly ignores `/node_modules`, `/.next`, `/out`, `/build`, `.DS_Store`, `*.pem`, `.env*`, `.vercel`, `*.tsbuildinfo` and `next-env.d.ts`, but the root `.gitignore` only ignores `.netlify`.
-- `node_modules/` was created by `npm ci` and remains untracked under the app directory.
-- `.next/` was created by `npm run build` and remains ignored under the app directory.
+- Remote is `origin https://github.com/Digital-Technology-Partner-ai/TenTouches-Website-.git`.
+- Root `.gitignore` now ignores dependencies, build outputs, local Netlify folders, environment/secrets patterns, logs, caches, macOS/system noise and TypeScript generated files.
+- Tracked `.DS_Store` files and generated `dist/` output have been removed from Git tracking in commit `7007324`.
+- App ESLint config ignores `dist/**`, and the visible `prefer-const` lint error in `netlify/functions/admin-signups.mts` has been fixed.
+- `node_modules/`, `.next/` and `dist/` may exist locally after verification but are ignored and untracked.
 
-Do not clean, delete, untrack or rewrite this repo without Steve's explicit approval. The immediate safe fix would be a small hygiene PR/commit that updates root ignore rules, removes generated/build/system files from tracking, and fixes the `prefer-const` lint error. That requires approval because it changes tracked repository contents beyond the briefing.
+Do not run the root `test-signup.sh` casually. It touches live beta/admin endpoints and should either be rewritten for fixtures/staging or retained only as a documented live diagnostic.
 
 ## Related DTP records
 
@@ -147,11 +147,9 @@ Do not clean, delete, untrack or rewrite this repo without Steve's explicit appr
 
 ## Open questions
 
-1. Should this repo be transferred into the DTP GitHub organisation `Digital-Technology-Partner-ai`, or remain under the current `Virgelsnake` remote for now?
-2. Should I clean repo hygiene next, specifically root `.gitignore`, tracked `.DS_Store`, tracked `dist/`, and the visible lint error?
-3. Is the website the only code that belongs here, or is there a separate Ten Touches iOS app codebase that should also be brought into `/Users/hudsonrebel/DTP Coding Projects/`?
-4. Should `test-signup.sh` be retained, rewritten to use fixtures/staging, or removed from the repo after extracting a safe diagnostic pattern?
-5. Should the Apple Watch voice-capture strawman become its own code/project workstream?
+1. Is the website the only code that belongs here, or is there a separate Ten Touches iOS app codebase that should also be brought into `/Users/hudsonrebel/DTP Coding Projects/`? Steve has said he will share that folder after the website folders, files and repo are completed.
+2. Should `test-signup.sh` be retained, rewritten to use fixtures/staging, or removed from the repo after extracting a safe diagnostic pattern?
+3. Should the Apple Watch voice-capture strawman become its own code/project workstream? Steve has said it can stay in the Ten Touches project folder for the moment.
 
 ## Next recommended actions
 
