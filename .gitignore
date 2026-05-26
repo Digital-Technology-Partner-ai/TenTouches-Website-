@@ -1,2 +1,34 @@
-# Local Netlify folder
-.netlify
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+
+# Local Netlify folders
+.netlify/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+
+# Logs and caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.cache/
+.turbo/
+
+# macOS/system noise
+.DS_Store
+._*
+
+# TypeScript / generated
+*.tsbuildinfo
+next-env.d.ts

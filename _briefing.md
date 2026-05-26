@@ -21,19 +21,17 @@ DTP has it because Ten Touches is a DTP-owned product candidate. The code was mi
 - **DTP software category:** product candidate
 - **Development state:** MVP
 - **Commercial status:** live/product-supporting, but needs repo hygiene before treating it as a clean maintained DTP codebase.
-- **Last verified:** 2026-05-26 22:05 UK
-- **Works locally:** partial
+- **Last verified:** 2026-05-26 22:57 UK
+- **Works locally:** yes for install, lint and production build. Live production endpoints were not smoke-tested.
   - `npm ci` succeeded in the app directory.
+  - `npm run lint` completed with warnings only, 0 errors.
   - `npm run build` succeeded in the app directory.
-  - `npm run lint` failed.
-- **Tests:** no dedicated test script is defined in `package.json`. `npm run lint` failed with 13 errors and 2805 warnings, mostly because the tracked `dist/` build output is inside the lint scope. One source-level lint error was also visible in `netlify/functions/admin-signups.mts` where `prefix` should be `const`.
+- **Tests:** no dedicated test script is defined in `package.json`. Latest verification used lint and build. `npm run lint` reports 7 warnings for unused parameters/imports but no errors.
 - **Main risks:**
-  - The repo currently tracks build output under `website_ten_touches/tentouches-website/dist/` and macOS `.DS_Store` files.
-  - Root `.gitignore` only ignores `.netlify`; the app-level `.gitignore` is more complete but does not protect the whole repo root.
-  - The remote is `https://github.com/Virgelsnake/TenTouches-Website-.git`, not the DTP GitHub organisation.
   - `test-signup.sh` contains and sends an admin password header to the live endpoint. Treat this as sensitive until reviewed.
   - `npm audit` reported 9 vulnerabilities, 5 moderate and 4 high, after `npm ci`.
   - Live-site HTTP verification was not completed in this run because the network check was blocked by the execution environment.
+  - GitHub transfer to the DTP organisation was reported by Steve, but Hudson could not verify the remote via `gh` because the network command was blocked by the execution environment.
 
 ## How to run
 
@@ -83,7 +81,7 @@ npm run build
 Results:
 
 - `npm ci`: passed.
-- `npm run lint`: failed. It linted tracked/generated files in `dist/` and also reported a source-level `prefer-const` error in `netlify/functions/admin-signups.mts`.
+- `npm run lint`: passed with 7 warnings and 0 errors. Remaining warnings are unused parameters/imports.
 - `npm run build`: passed.
 
 There is also a root-level `test-signup.sh`, but I did not run it because it posts beta signup test data to the live `tentouches.app` functions and includes an admin password header. That is not a harmless smoke test. Fancy that, a test script with live side effects. Very on-brand for things found in inboxes.

@@ -1,5 +1,0 @@
-1:"$Sreact.fragment"
-2:I[8172,[],""]
-3:I[4829,[],""]
-:HL["/_next/static/css/0d3a6c8c88b6de44.css","style"]
-0:{"buildId":"Hu5pQ7iq3_pN6iwxSUo7r","rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/0d3a6c8c88b6de44.css","precedence":"next"}]],["$","html",null,{"lang":"en-GB","children":[["$","head",null,{"children":["$","script",null,{"type":"application/ld+json","dangerouslySetInnerHTML":{"__html":"{\"@context\":\"https://schema.org\",\"@type\":\"SoftwareApplication\",\"name\":\"Ten Touches\",\"applicationCategory\":\"BusinessApplication\",\"operatingSystem\":\"iOS\",\"offers\":{\"@type\":\"Offer\",\"price\":\"0\",\"priceCurrency\":\"GBP\"},\"description\":\"The personal CRM for relationship-driven salespeople. Voice-first capture, intelligent follow-up, and behavioural insights.\",\"url\":\"https://tentouches.app\",\"image\":\"https://tentouches.app/app-icon.png\"}"}}]}],["$","body",null,{"className":"antialiased font-sans","children":["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]}]]}]]}],"loading":null,"isPartial":false}

@@ -87,7 +87,7 @@ const handler = async (req: Request, _context: Context) => {
       
       const store = getStore({ name: STORE_NAME, consistency: "strong" });
       
-      let prefix = showArchived ? ARCHIVE_PREFIX : "signup-";
+      const prefix = showArchived ? ARCHIVE_PREFIX : "signup-";
       const { blobs } = await store.list({ prefix });
       
       const signups: Signup[] = [];
