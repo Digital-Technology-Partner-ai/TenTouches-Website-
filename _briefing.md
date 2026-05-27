@@ -20,15 +20,15 @@ DTP has it because Ten Touches is a DTP-owned product candidate. The code was mi
 
 - **DTP software category:** product candidate
 - **Development state:** MVP
-- **Commercial status:** live/product-supporting. Basic repository hygiene is now clean enough for DTP maintenance; dependency/security review is still needed before treating it as production-hardened.
-- **Last verified:** 2026-05-27 10:26 BST
+- **Commercial status:** live/product-supporting. Basic repository hygiene and the first dependency/security review pass are complete; the site still needs a safer staged diagnostic path for live beta/admin workflows before it should be called production-hardened.
+- **Last verified:** 2026-05-27 11:55 BST
 - **Works locally:** yes for install, lint and production build. Production-safe live smoke checks were also completed on 2026-05-27.
   - `npm ci` succeeded in the app directory on 2026-05-26.
   - `npm run lint` completed with warnings only, 0 errors on 2026-05-27.
-  - `npm run build` succeeded in the app directory on 2026-05-27.
-- **Tests:** no dedicated test script is defined in `package.json`. Latest verification used lint, build and production-safe live smoke checks. `npm run lint` reports 7 warnings for unused parameters/imports but no errors.
+  - `npm run build` succeeded in the app directory on 2026-05-27 after dependency updates.
+  - `npm audit --omit=dev` reported 0 vulnerabilities on 2026-05-27 after updating Next.js and applying a PostCSS override.
+- **Tests:** no dedicated test script is defined in `package.json`. Latest verification used audit, lint, build and production-safe live smoke checks. `npm run lint` reports 7 warnings for unused parameters/imports but no errors.
 - **Main risks:**
-  - `npm audit` reported 9 vulnerabilities, 5 moderate and 4 high, after `npm ci`; this still needs dependency/security review.
   - The root `test-signup.sh` touches live beta/admin endpoints. Its admin check now requires `ADMIN_PASSWORD` from the local environment rather than a hard-coded password, but it still should not be run casually.
   - The admin Netlify function now fails closed if `ADMIN_PASSWORD` is not configured.
   - GitHub transfer to the DTP organisation has been verified by `gh repo view` and `git ls-remote`. Local `origin` points to `https://github.com/Digital-Technology-Partner-ai/TenTouches-Website-.git`.
@@ -96,7 +96,7 @@ There is also a root-level `test-signup.sh`. It still touches live endpoints, so
 
 - **Repository root:** `/Users/hudsonrebel/DTP Coding Projects/ten-touches-website`
 - **App root:** `/Users/hudsonrebel/DTP Coding Projects/ten-touches-website/website_ten_touches/tentouches-website`
-- **Framework:** Next.js 16.1.6, React 19.2.3, TypeScript, Tailwind CSS 4.
+- **Framework:** Next.js 16.2.6, React 19.2.3, TypeScript, Tailwind CSS 4.
 - **Pages/routes:**
   - `src/app/page.tsx` — home route.
   - `src/app/beta/page.tsx` — beta signup route.
@@ -126,10 +126,16 @@ Environment/runtime signals:
 - No `.env` files were found in the copied code folder during the safety scan.
 - Known environment variable names from the Netlify functions: `ADMIN_PASSWORD`.
 - Admin access fails closed when `ADMIN_PASSWORD` is absent.
+- Dependency security pass on 2026-05-27:
+  - `npm audit fix` removed the direct `tmp`, `uuid` and `ws` audit findings.
+  - Next.js was updated from 16.1.6 to 16.2.6.
+  - `eslint-config-next` was updated to 16.2.6.
+  - `overrides.postcss = 8.5.10` was added so the nested PostCSS advisory is remediated.
+  - `npm audit --omit=dev` now reports 0 vulnerabilities.
 
 ## Repository hygiene
 
-Current Git state after security hardening is clean and pushed as of commit to be recorded after this briefing update.
+Current Git state after security hardening and dependency audit fix is clean and pushed as of the latest briefing/dependency commit.
 
 Important hygiene findings and actions:
 
@@ -141,6 +147,7 @@ Important hygiene findings and actions:
 - App ESLint config ignores `dist/**`, and the visible `prefer-const` lint error in `netlify/functions/admin-signups.mts` has been fixed.
 - `test-signup.sh` no longer embeds the admin password; it reads `ADMIN_PASSWORD` from the caller's environment and skips the authenticated admin check if absent.
 - `netlify/functions/admin-signups.mts` no longer falls back to a default admin password; it returns HTTP 500 if `ADMIN_PASSWORD` is missing.
+- `package.json` and `package-lock.json` now include the dependency security pass: Next.js 16.2.6, eslint-config-next 16.2.6 and PostCSS override 8.5.10.
 - `node_modules/`, `.next/` and `dist/` may exist locally after verification but are ignored and untracked.
 
 Do not run the root `test-signup.sh` casually. It touches live beta/admin endpoints and should either be rewritten for fixtures/staging or retained only as a documented live diagnostic.
@@ -158,20 +165,17 @@ Do not run the root `test-signup.sh` casually. It touches live beta/admin endpoi
 
 1. Should `test-signup.sh` be retained, rewritten to use fixtures/staging, or removed from the repo after extracting a safe diagnostic pattern?
 2. Should the Apple Watch voice-capture strawman become its own code/project workstream? Steve has said it can stay in the Ten Touches project folder for the moment.
-3. Should the separate Ten Touches iOS app repo at `/Users/hudsonrebel/DTP Coding Projects/ten-touches-ios` be transferred/backed up under the DTP GitHub organisation after its dirty local training-data script changes are reviewed?
 
 ## Next recommended actions
 
 Hudson-owned, safe after Steve approval where needed:
 
-- Create a follow-up `coding-projects` card for Ten Touches dependency/security review and a safer staged diagnostic path for beta/admin functions.
-- Intake the separate iOS app repo with its own `_briefing.md` once the pre-existing dirty local Swift script changes have been reviewed.
+- Create/keep a follow-up `coding-projects` card for a safer staged diagnostic path for beta/admin functions if Steve wants live diagnostics retained.
 - Keep the Apple Watch voice-capture strawman inside the Ten Touches project folder until Steve decides whether it becomes its own workstream.
 
 Steve-decision items:
 
 - Decide whether `test-signup.sh` should stay as a guarded live diagnostic, be rewritten for fixtures/staging, or be removed after extracting a safe pattern.
-- Decide whether to transfer/back up the Ten Touches iOS app repo under the DTP GitHub organisation.
 - Confirm whether the Apple Watch capture work is part of Ten Touches or a separate project.
 
 ## Steve's notes
