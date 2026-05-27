@@ -3,7 +3,7 @@ import { getStore } from "@netlify/blobs";
 
 const STORE_NAME = "beta-signups";
 const ARCHIVE_PREFIX = "archived-";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "tentouches-admin";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 interface Signup {
   key: string;
@@ -18,6 +18,13 @@ interface Signup {
 const handler = async (req: Request, _context: Context) => {
   // Check password
   const password = req.headers.get("X-Admin-Password");
+
+  if (!ADMIN_PASSWORD) {
+    return new Response(
+      JSON.stringify({ error: "Admin password is not configured" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
   
   if (password !== ADMIN_PASSWORD) {
     return new Response(

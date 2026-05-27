@@ -85,15 +85,21 @@ fi
 echo ""
 
 # Test 7: Admin API access
+# Requires ADMIN_PASSWORD in the local environment. Do not hard-code production
+# admin credentials in this repo or in shell history.
 echo "Test 7: Admin API with password"
-ADMIN_RESPONSE=$(curl -s "https://tentouches.app/.netlify/functions/admin-signups" \
-  -H "X-Admin-Password: TenTouches2026!")
-SIGNUP_COUNT=$(echo "$ADMIN_RESPONSE" | grep -o '"count":[0-9]*' | cut -d':' -f2)
-echo "Total signups: $SIGNUP_COUNT"
-if [ -n "$SIGNUP_COUNT" ] && [ "$SIGNUP_COUNT" -gt 0 ]; then
-    echo "✅ Admin API working"
+if [ -z "$ADMIN_PASSWORD" ]; then
+    echo "⚠️  Skipping admin API authenticated check: ADMIN_PASSWORD is not set"
 else
-    echo "❌ Admin API failed"
+    ADMIN_RESPONSE=$(curl -s "https://tentouches.app/.netlify/functions/admin-signups" \
+      -H "X-Admin-Password: $ADMIN_PASSWORD")
+    SIGNUP_COUNT=$(echo "$ADMIN_RESPONSE" | grep -o '"count":[0-9]*' | cut -d':' -f2)
+    echo "Total signups: $SIGNUP_COUNT"
+    if [ -n "$SIGNUP_COUNT" ] && [ "$SIGNUP_COUNT" -gt 0 ]; then
+        echo "✅ Admin API working"
+    else
+        echo "❌ Admin API failed"
+    fi
 fi
 echo ""
 
