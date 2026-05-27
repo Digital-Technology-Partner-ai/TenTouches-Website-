@@ -21,13 +21,13 @@ DTP has it because Ten Touches is a DTP-owned product candidate. The code was mi
 - **DTP software category:** product candidate
 - **Development state:** MVP
 - **Commercial status:** live/product-supporting. Basic repository hygiene and the first dependency/security review pass are complete; the site still needs a safer staged diagnostic path for live beta/admin workflows before it should be called production-hardened.
-- **Last verified:** 2026-05-27 11:55 BST
+- **Last verified:** 2026-05-27 12:03 BST
 - **Works locally:** yes for install, lint and production build. Production-safe live smoke checks were also completed on 2026-05-27.
   - `npm ci` succeeded in the app directory on 2026-05-26.
   - `npm run lint` completed with warnings only, 0 errors on 2026-05-27.
   - `npm run build` succeeded in the app directory on 2026-05-27 after dependency updates.
   - `npm audit --omit=dev` reported 0 vulnerabilities on 2026-05-27 after updating Next.js and applying a PostCSS override.
-- **Tests:** no dedicated test script is defined in `package.json`. Latest verification used audit, lint, build and production-safe live smoke checks. `npm run lint` reports 7 warnings for unused parameters/imports but no errors.
+- **Tests:** no dedicated test script is defined in `package.json`. Latest verification used `bash -n test-signup.sh`, the safe default diagnostic script, audit, lint, build and production-safe live smoke checks. `npm run lint` reports 7 warnings for unused parameters/imports but no errors.
 - **Main risks:**
   - The root `test-signup.sh` touches live beta/admin endpoints. Its admin check now requires `ADMIN_PASSWORD` from the local environment rather than a hard-coded password, but it still should not be run casually.
   - The admin Netlify function now fails closed if `ADMIN_PASSWORD` is not configured.
@@ -81,6 +81,9 @@ Results on 2026-05-27:
 
 - `npm run lint`: passed with 7 warnings and 0 errors. Remaining warnings are unused parameters/imports.
 - `npm run build`: passed.
+- `npm audit --omit=dev`: passed with 0 vulnerabilities after dependency updates.
+- `bash -n test-signup.sh`: passed.
+- `./test-signup.sh`: passed in safe default mode without creating live beta-signup records; it checked the counter, invalid-input validation, skipped authenticated admin because `ADMIN_PASSWORD` was not set, and verified unauthenticated admin access returns 401.
 
 Production-safe live smoke checks completed on 2026-05-27:
 
@@ -90,7 +93,7 @@ Production-safe live smoke checks completed on 2026-05-27:
 - Invalid signup missing `name` returned 400.
 - Unauthenticated `GET /.netlify/functions/admin-signups` returned 401.
 
-There is also a root-level `test-signup.sh`. It still touches live endpoints, so do not run it casually. Its authenticated admin check now requires `ADMIN_PASSWORD` in the local shell environment; the repo no longer contains the admin password value.
+There is also a root-level `test-signup.sh`. It is now staged by default: safe checks run without creating beta-signup records, while live signup mutations require `LIVE_TEST=1`. Authenticated admin checks require `ADMIN_PASSWORD`; the repo does not contain the admin password value.
 
 ## Architecture map
 
@@ -146,11 +149,12 @@ Important hygiene findings and actions:
 - Tracked `.DS_Store` files and generated `dist/` output have been removed from Git tracking in commit `7007324`.
 - App ESLint config ignores `dist/**`, and the visible `prefer-const` lint error in `netlify/functions/admin-signups.mts` has been fixed.
 - `test-signup.sh` no longer embeds the admin password; it reads `ADMIN_PASSWORD` from the caller's environment and skips the authenticated admin check if absent.
+- `test-signup.sh` now defaults to non-mutating diagnostics. It only creates live signup records when `LIVE_TEST=1` is explicitly supplied, and `BASE_URL` can be overridden for staging/non-production checks.
 - `netlify/functions/admin-signups.mts` no longer falls back to a default admin password; it returns HTTP 500 if `ADMIN_PASSWORD` is missing.
 - `package.json` and `package-lock.json` now include the dependency security pass: Next.js 16.2.6, eslint-config-next 16.2.6 and PostCSS override 8.5.10.
 - `node_modules/`, `.next/` and `dist/` may exist locally after verification but are ignored and untracked.
 
-Do not run the root `test-signup.sh` casually. It touches live beta/admin endpoints and should either be rewritten for fixtures/staging or retained only as a documented live diagnostic.
+The root `test-signup.sh` is still a live-endpoint diagnostic, but its default mode is safe/non-mutating. Use `LIVE_TEST=1` only when intentionally creating clearly labelled diagnostic signup records; use `BASE_URL=<staging-url>` if a staging deployment exists.
 
 ## Related DTP records
 
@@ -163,15 +167,15 @@ Do not run the root `test-signup.sh` casually. It touches live beta/admin endpoi
 
 ## Open questions
 
-1. Should `test-signup.sh` be retained, rewritten to use fixtures/staging, or removed from the repo after extracting a safe diagnostic pattern?
-2. Should the Apple Watch voice-capture strawman become its own code/project workstream? Steve has said it can stay in the Ten Touches project folder for the moment.
+1. Should the Apple Watch voice-capture strawman become its own code/project workstream? Steve has said it can stay in the Ten Touches project folder for the moment.
+2. Should DTP create a separate staging Netlify deployment for Ten Touches so `BASE_URL` diagnostics can run away from production?
 
 ## Next recommended actions
 
 Hudson-owned, safe after Steve approval where needed:
 
-- Create/keep a follow-up `coding-projects` card for a safer staged diagnostic path for beta/admin functions if Steve wants live diagnostics retained.
 - Keep the Apple Watch voice-capture strawman inside the Ten Touches project folder until Steve decides whether it becomes its own workstream.
+- If Steve wants higher assurance before launch, create a staging Netlify deployment and run `BASE_URL=<staging-url> LIVE_TEST=1 ./test-signup.sh` there rather than against production.
 
 Steve-decision items:
 
